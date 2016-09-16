@@ -6,7 +6,7 @@ class CreateVideoGames < ActiveRecord::Migration[5.0]
       t.string :developer
       t.string :publisher
       t.string :genre
-      t.boolean :series
+      t.boolean :series, default: false
       t.integer :review_score
 
       t.timestamps
