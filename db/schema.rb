@@ -34,10 +34,10 @@ ActiveRecord::Schema.define(version: 20160916145526) do
     t.string   "developer"
     t.string   "publisher"
     t.string   "genre"
-    t.boolean  "series"
+    t.boolean  "series",       default: false
     t.integer  "review_score"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
   end
 
 end
