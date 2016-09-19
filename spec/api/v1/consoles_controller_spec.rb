@@ -3,6 +3,7 @@ require 'rails_helper'
 describe 'Console API Request' do
  
   it "renders a JSON response for all of the consoles" do
+    Console.destroy_all
     console = Console.create(name: 'PS4', manufacturer: 'Sony', release_date: Date.strptime('2013-11-15', '%Y-%m-%d') )
     console1= Console.create(name: 'N64', manufacturer: 'Nintendo', release_date: Date.strptime('2008-11-15', '%Y-%m-%d'))
     get '/api/v1/consoles'
@@ -43,9 +44,46 @@ describe 'Console API Request' do
 
             expect(response.status).to eq(500)
             expect(response_body).to eq("release_date" => ["can't be blank"])
-
-          
         end
+      end
+    end
+
+
+    describe 'console editing:' do
+      context "when valid" do
+        it 'returns an updated database instance' do
+          Console.create(name: 'N64', manufacturer: 'Nintendo', release_date: Date.strptime('2008-11-15', '%Y-%m-%d'))
+          patch "/api/v1/consoles/#{Console.last.id}", {console:{name: 'Amiga'}}
+          
+          console = Console.last
+          console_json = JSON.parse(response.body)
+          expect(response).to be_success
+          expect(console.name).to eq('Amiga') 
+          expect(console.manufacturer).to eq('Nintendo') 
+        end      
+      end
+
+      context "when invalid" do
+        it 'returns an error message and response' do 
+          Console.create(name: 'N64', manufacturer: 'Nintendo', release_date: Date.strptime('2008-11-15', '%Y-%m-%d'))
+          patch "/api/v1/consoles/#{Console.last.id}", {console:{name: nil}}
+          console = Console.last
+
+          console_json = JSON.parse(response.body)
+          expect(response.status).to eq(500)
+          expect(console_json).to eq("name" => ["can't be blank"])
+        end
+      end
+    end
+
+    describe 'destroy console' do
+      it 'destroys a console record' do
+        Console.create(name: 'N64', manufacturer: 'Nintendo', release_date: Date.strptime('2008-11-15', '%Y-%m-%d'))
+        count = Console.count
+        delete "/api/v1/consoles/#{Console.last.id}"
+        
+        expect(response).to be_success
+        expect(Console.count).to eq(count-1)
       end
     end
 end
