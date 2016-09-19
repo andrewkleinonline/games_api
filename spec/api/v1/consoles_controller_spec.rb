@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'Console API Request' do
- 
+
   it "renders a JSON response for all of the consoles" do
     Console.destroy_all
     console = Console.create(name: 'PS4', manufacturer: 'Sony', release_date: Date.strptime('2013-11-15', '%Y-%m-%d') )
@@ -20,6 +20,7 @@ describe 'Console API Request' do
     response_body = JSON.parse(response.body)
     expect(response).to be_success
     expect(response_body["name"]).to eq(console.name)
+    expect(response_body.keys).to include("video_games")
   end
 
 
@@ -54,17 +55,17 @@ describe 'Console API Request' do
         it 'returns an updated database instance' do
           Console.create(name: 'N64', manufacturer: 'Nintendo', release_date: Date.strptime('2008-11-15', '%Y-%m-%d'))
           patch "/api/v1/consoles/#{Console.last.id}", {console:{name: 'Amiga'}}
-          
+
           console = Console.last
           console_json = JSON.parse(response.body)
           expect(response).to be_success
-          expect(console.name).to eq('Amiga') 
-          expect(console.manufacturer).to eq('Nintendo') 
-        end      
+          expect(console.name).to eq('Amiga')
+          expect(console.manufacturer).to eq('Nintendo')
+        end
       end
 
       context "when invalid" do
-        it 'returns an error message and response' do 
+        it 'returns an error message and response' do
           Console.create(name: 'N64', manufacturer: 'Nintendo', release_date: Date.strptime('2008-11-15', '%Y-%m-%d'))
           patch "/api/v1/consoles/#{Console.last.id}", {console:{name: nil}}
           console = Console.last
@@ -81,11 +82,9 @@ describe 'Console API Request' do
         Console.create(name: 'N64', manufacturer: 'Nintendo', release_date: Date.strptime('2008-11-15', '%Y-%m-%d'))
         count = Console.count
         delete "/api/v1/consoles/#{Console.last.id}"
-        
+
         expect(response).to be_success
         expect(Console.count).to eq(count-1)
       end
     end
 end
-
-
